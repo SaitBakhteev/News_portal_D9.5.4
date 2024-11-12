@@ -187,6 +187,13 @@ SOCIALACCOUNT_FORMS = {'signup': 'sign.models.SocialCommonSignupForm'}
 SOCIALACCOUNT_AUTO_SIGNUP = False # эта настройка важна, чтобы
     #SOCIALACCOUNT_FORMS ссылался на ту форму, которую указали выше
 
+# добавки по celery и redis
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
 SOCIALACCOUNT_PROVIDERS = {'yandex':
                                {'APP':
                                     {'client_id':os.environ.get('YANDEX_CLIEND_ID'),
