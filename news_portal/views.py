@@ -1,4 +1,5 @@
 #___________ НАЧАЛО ИМПОРТА КОМПОНЕНТОВ ______________
+import time
 from datetime import datetime
 import datetime as dt
 
@@ -36,6 +37,8 @@ from django.conf import settings
 
 from pprint import pprint
 from django.db import models
+from .tasks import test_sleep, hello_world, test_comments
+from django.http import HttpResponse, HttpResponseRedirect
 #___________ КОНЕЦ ИМПОРТА КОМПОНЕНТОВ ______________#
 
 
@@ -168,7 +171,8 @@ def create_post(request): # функция для создания и добав
     if request.method=='POST':
         form=PostCreateForm(request.POST)
         if form.is_valid():
-            form.save()
+            post=form.save()
+            post_id, user_id = post.pk, request.user.id
             return render(request, 'flatpages/messages.html', {'state':'Новая публикация добавлена успешно!'})
     return render(request, 'flatpages/edit.html', {'form':form, 'button':'Опубликовать'})
 
@@ -256,10 +260,14 @@ class MailView(View):
 
 # представление для тестирования разных задач
 def test(request):
-    delta=datetime.now(dt.timezone.utc)-dt.timedelta(days=1)
-    posts=Post.objects.filter(create_time__gte=delta).count()
-    return render(request,'test.html',
-                              {'test':posts})
+    post=Post.objects.create(title='TEST', create_time=datetime.now(dt.timezone.utc),
+                        content=f'TEST created at {datetime.now(dt.timezone.utc)}',
+                        author_id=2)
+    post_id, user_id = post.id, post.author_id
+
+    test_comments.apply_async([post_id, user_id],
+                              expires=3)
+    return HttpResponse('Good')
 
 # -! Неиспользуемые классы ниже
 class CommListView(ListView):  # класс для отобрпажения
