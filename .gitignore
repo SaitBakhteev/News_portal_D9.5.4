@@ -1,9 +1,11 @@
 .env
 any_tests.py
-djangoProject_News_Portal/__pycache__
-news_portal/__pycache__
-protect/__pycache__
+/djangoProject_News_Portal/__pycache__/
+/news_portal/__pycache__/
+/protect/__pycache__/
 celerybeat-schedule.bak
 celerybeat-schedule.dat
 celerybeat-schedule.dir
-.idea
+/.idea/
+db.sqlite3_1.sqlite3
+DB_django

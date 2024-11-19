@@ -163,8 +163,8 @@ EMAIL_HOST_USER=os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_USE_SSL=True # ЯНДЕКС ИСПОЛЬЗУЕТ SSL, ПОЭТОМУ НУЖНО УСТАНАВЛИВАТЬ True
 
-# EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend' # установка отправки уведомлений на почтовый сервер
-EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend' # установка отправки уведомлений на консоль
+EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend' # установка отправки уведомлений на почтовый сервер
+# EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend' # установка отправки уведомлений на консоль
 
 
 DEFAULT_FROM_EMAIL=os.getenv('DEFAULT_FROM_EMAIL')

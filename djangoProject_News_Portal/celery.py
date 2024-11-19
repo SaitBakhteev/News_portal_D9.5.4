@@ -10,7 +10,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 app.conf.broker_connection_retry_on_startup = True
 
-app.conf.beat_schedule = {'hello_world_every_5_sec':
-                              {'task': 'news_portal.tasks.hello_world',
-                              'schedule': 5,
-                              'args':()}}
+# app.conf.beat_schedule = {'hello_world_every_5_sec':
+#                               {'task': 'news_portal.tasks.hello_world',
+#                               'schedule': 5,
+#                               'args':()}}
