@@ -10,3 +10,4 @@ news_portal/__pycache__
 celerybeat-schedule.bak
 celerybeat-schedule.dat
 celerybeat-schedule.dir
+for_tests.py
