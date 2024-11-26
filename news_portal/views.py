@@ -39,6 +39,10 @@ from pprint import pprint
 from django.db import models
 from .tasks import test_sleep, hello_world, test_comments
 from django.http import HttpResponse, HttpResponseRedirect
+
+#------- КЭШ -------------
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 #___________ КОНЕЦ ИМПОРТА КОМПОНЕНТОВ ______________#
 
 
@@ -140,6 +144,14 @@ class PostDetail(LoginRequiredMixin,DetailView): # детальная инфор
     # переменная передающая в контекст информациюЮ обладает ли пользователь правами авторо
         context['is_author']=self.request.user.groups.filter(name='authors').exists()
         return context
+
+    # def get_object(self, queryset=None):
+    #     post=cache.get(f'post - {self.kwargs['pk']}', None)
+    #
+    #     if post is None:
+    #         post = super().get_object(queryset=self.queryset)
+    #         cache.set(f'post - {self.kwargs['pk']}', post)
+    #     return post
 
 class PostFilterView(LoginRequiredMixin, ListView): # класс для отображения фильтра поста на отдельной HTML странице 'search.html'
     model = Post
@@ -259,15 +271,10 @@ class MailView(View):
 
 
 # представление для тестирования разных задач
-def test(request):
-    post=Post.objects.create(title='TEST', create_time=datetime.now(dt.timezone.utc),
-                        content=f'TEST created at {datetime.now(dt.timezone.utc)}',
-                        author_id=2)
-    post_id, user_id = post.id, post.author_id
 
-    test_comments.apply_async([post_id, user_id],
-                              expires=3)
-    return HttpResponse('Good')
+def test(request):
+    # post=Post.objects.get(pk=22)
+    return render(request,'test.html')
 
 # -! Неиспользуемые классы ниже
 class CommListView(ListView):  # класс для отобрпажения

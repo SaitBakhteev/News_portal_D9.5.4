@@ -2,6 +2,7 @@ from random import randint as rint
 
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.core.cache import cache
 from django.contrib.auth.models import User
 from datetime import datetime
 import datetime as dt
@@ -65,6 +66,9 @@ class Post(models.Model):
 
     def __str__(self):
         return f'{self.content[:30:]}, {self.author.user.username} '
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs) # обращение к родителю вызывается для того, чтобы при изменении поста сам объект сохраниолся
 
     def set_date(self, y_): # функция изменения даты публикации в БД
                             # через shell сугубо для учеьных целей

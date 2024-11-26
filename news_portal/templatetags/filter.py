@@ -12,3 +12,8 @@ def censor(value,arg):
         print(str(e))
         return value
 
+@register.filter
+def pow(value,x):
+    return value+x*10
+
+

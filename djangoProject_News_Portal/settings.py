@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
-from dotenv import load_dotenv, find_dotenv # импорт компонентов
-    # для защиты персональных данных и секртных ключей в файле .env
+from dotenv import load_dotenv, find_dotenv  # импорт компонентов
+# для защиты персональных данных и секртных ключей в файле .env
 from pathlib import Path
 
 load_dotenv(find_dotenv())
@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY=os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -44,17 +44,17 @@ INSTALLED_APPS = [
     'django_filters',
     'news_portal.apps.NewsPortalConfig',
     'crispy_forms',
-    'sign', 'protect', # приложения для авторизации
-    'django_apscheduler', # планировщик заданий
+    'sign', 'protect',  # приложения для авторизации
+    'django_apscheduler',  # планировщик заданий
 
-    #добавки allauth
+    # добавки allauth
     'allauth', 'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.yandex',
     'allauth.socialaccount.providers.google',
 
 ]
-SITE_ID=1
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,6 +71,11 @@ MIDDLEWARE = [
     # добавка allauth
     'allauth.account.middleware.AccountMiddleware',
 
+    #добавки по кэшу
+    "django.middleware.cache.UpdateCacheMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
+
 ]
 
 ROOT_URLCONF = 'djangoProject_News_Portal.urls'
@@ -78,7 +83,7 @@ ROOT_URLCONF = 'djangoProject_News_Portal.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # это исходная настройка
+        'DIRS': [BASE_DIR / 'templates'],  # это исходная настройка
         # 'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -152,35 +157,35 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-STATICFILES_DIRS=[BASE_DIR / 'static']
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # добавки для рассылки почты
-EMAIL_HOST='smtp.yandex.ru' # ажрес сервера яндекс почты
-EMAIL_PORT=465 # ПОРТ smtp серврера
-EMAIL_HOST_USER=os.getenv('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD=os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_SSL=True # ЯНДЕКС ИСПОЛЬЗУЕТ SSL, ПОЭТОМУ НУЖНО УСТАНАВЛИВАТЬ True
+EMAIL_HOST = 'smtp.yandex.ru'  # ажрес сервера яндекс почты
+EMAIL_PORT = 465  # ПОРТ smtp серврера
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_SSL = True  # ЯНДЕКС ИСПОЛЬЗУЕТ SSL, ПОЭТОМУ НУЖНО УСТАНАВЛИВАТЬ True
 
-# EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend' # установка отправки уведомлений на почтовый сервер
-EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend' # установка отправки уведомлений на консоль
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # установка отправки уведомлений на почтовый сервер
+EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'  # установка отправки уведомлений на консоль
 
 
-DEFAULT_FROM_EMAIL=os.getenv('DEFAULT_FROM_EMAIL')
-LOGIN_URL='/accounts/login/'
-LOGIN_REDIRECT_URL='/'
-# MANAGERS=('test@example.ru,stepler@laxap.ru')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/'
+# MANAGERS = ('test@example.ru,stepler@laxap.ru')
 
 # добавки по авторизации
-ACCOUNT_EMAIL_REQUIRED=True
-ACCOUNT_EMAIL_VERIFICATION='mandatory' # требуется верификация e-mail для первого входа в систему
-ACCOUNT_USERNAME_REQUIRED=True
-ACCOUNT_AUTHENTICATION_METHOD='username_email'
-ACCOUNT_UNIQUE_EMAIL=True
-ACCOUNT_CONFIRM_EMAIL_ON_GET=True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # требуется верификация e-mail для первого входа в систему
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 
-    # настройки для того, чтобы при регистарции пользователь
+# настройки для того, чтобы при регистарции пользователь
 # автоматически добавлялся в группу "common"
 ACCOUNT_FORMS = {'signup': 'sign.models.CommonSignupForm'}
 SOCIALACCOUNT_FORMS = {'signup': 'sign.models.SocialCommonSignupForm'}
@@ -193,6 +198,12 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
+
+#------- КЭШ ------------
+CACHES = {'default':
+              {'BACKEND':'django.core.cache.backends.filebased.FileBasedCache',
+               'LOCATION': os.path.join(BASE_DIR, 'cache_files')} } # здесь указывается директория для кэшируемых файлов
+
 
 SOCIALACCOUNT_PROVIDERS = {'yandex':
                                {'APP':

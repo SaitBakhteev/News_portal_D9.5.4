@@ -11,3 +11,5 @@ celerybeat-schedule.bak
 celerybeat-schedule.dat
 celerybeat-schedule.dir
 for_tests.py
+cache_files/
+news_portal/templatetags/__pycache__/
