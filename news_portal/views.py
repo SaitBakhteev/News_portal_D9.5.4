@@ -1,4 +1,5 @@
 #___________ НАЧАЛО ИМПОРТА КОМПОНЕНТОВ ______________
+from django.conf import settings
 import time
 from datetime import datetime
 import datetime as dt
@@ -33,16 +34,20 @@ from django.core.exceptions import ObjectDoesNotExist
 # импорты для удаления тестовых пользователей (для отработки при создании проекта)
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.models import EmailAddress
-from django.conf import settings
+
 
 from pprint import pprint
 from django.db import models
 from .tasks import test_sleep, hello_world, test_comments
 from django.http import HttpResponse, HttpResponseRedirect
 
-#------- КЭШ -------------
+# ------- КЭШ -------------
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
+from redis import Redis
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 #___________ КОНЕЦ ИМПОРТА КОМПОНЕНТОВ ______________#
 
 
@@ -121,6 +126,7 @@ class PostDetail(LoginRequiredMixin,DetailView): # детальная инфор
     model = Post
     template_name = 'flatpages/post.html'
     context_object_name = 'post'
+    queryset = Post.objects.all()
 
     def get_context_data(self, **kwargs): # модернизация контекста для отображения комментариев
                                                 # на отдельной странице поста
@@ -145,13 +151,12 @@ class PostDetail(LoginRequiredMixin,DetailView): # детальная инфор
         context['is_author']=self.request.user.groups.filter(name='authors').exists()
         return context
 
-    # def get_object(self, queryset=None):
-    #     post=cache.get(f'post - {self.kwargs['pk']}', None)
-    #
-    #     if post is None:
-    #         post = super().get_object(queryset=self.queryset)
-    #         cache.set(f'post - {self.kwargs['pk']}', post)
-    #     return post
+    def get_object(self, queryset=None):
+        post=cache.get(f'post-{self.kwargs['pk']}', None)
+        if post is None:
+            post = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs['pk']}', post)
+        return post
 
 class PostFilterView(LoginRequiredMixin, ListView): # класс для отображения фильтра поста на отдельной HTML странице 'search.html'
     model = Post
@@ -220,11 +225,13 @@ def edit_post(request, pk): # функция для редактирования
             try:
                 state = None  # переменная для контекста отображающая сообщение для пользователя о результатах действий
                 if form.is_valid():
-                    Post.objects.filter(pk=pk).update(**{'author':post.author,
+                    post=Post.objects.filter(pk=pk).update(**{'author':post.author,
                                                          'postType':post.postType,
                                                          'create_time':post.create_time,
                                                          'title':form.cleaned_data['title'],
                                                          'content':form.cleaned_data['content']})
+                    # post.save()
+                    cache.delete(f'post-pk')  # после сохранения поста удаляем кэш
                     state='Изменения успешно сохранены.'
             except TypeError:
                 state = 'Возникла ошибка! Возможно причина в превышении лимита названия поста, попавшего в БД не через форму'
@@ -271,10 +278,10 @@ class MailView(View):
 
 
 # представление для тестирования разных задач
-
+@cache_page(4)
 def test(request):
-    # post=Post.objects.get(pk=22)
-    return render(request,'test.html')
+    a=cache.get(f'post-18', None)
+    return render(request,'test.html', context={'a': a})
 
 # -! Неиспользуемые классы ниже
 class CommListView(ListView):  # класс для отобрпажения

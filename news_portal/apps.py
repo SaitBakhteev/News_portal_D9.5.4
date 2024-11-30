@@ -13,8 +13,3 @@ class NewsPortalConfig(AppConfig):
         print('begin')
         begin=datetime.now()
 
-        # scheduler.add_job(id='run_scheduler', trigger='interval',
-        #                   seconds=30,
-        #                   func=hello_world)
-        # scheduler.start()
-        # print(f'time={datetime.now()-begin}')

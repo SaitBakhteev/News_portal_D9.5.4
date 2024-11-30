@@ -71,10 +71,15 @@ MIDDLEWARE = [
     # добавка allauth
     'allauth.account.middleware.AccountMiddleware',
 
-    #добавки по кэшу
-    "django.middleware.cache.UpdateCacheMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.cache.FetchFromCacheMiddleware",
+    #ДОБАВКИ ПО КЭШУ
+    # Они кэшируют абсолютно все страницы проекта, что в нашем случае не очень приемлемо, поскольку проект обновляются
+    # постоянно обновляется новыми постами, сами посты тоже могут подвергаться редактированию и т.п. и т.п. Поэтому
+    # здесь нижеприведенные добавки оставлены для демонсатрации, но закоментированы для дезактивации
+
+    # 'django.middleware.cache.UpdateCacheMiddleware',  # Должно быть первым. Он записывает в кэш HTTP-ответ после обработки представления
+    # 'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.cache.FetchFromCacheMiddleware',  # Должно быть последним. При поступлении запроса, он сначала произваодит поиск
+    # уже имеющегося кэша по отвенту на этот запрос. Если кэш найден, то пропускает обработку запроса
 
 ]
 
@@ -202,8 +207,12 @@ CELERY_RESULT_SERIALIZER = 'json'
 #------- КЭШ ------------
 CACHES = {'default':
               {'BACKEND':'django.core.cache.backends.filebased.FileBasedCache',
-               'LOCATION': os.path.join(BASE_DIR, 'cache_files')} } # здесь указывается директория для кэшируемых файлов
+               'LOCATION': os.path.join(BASE_DIR, 'cache_files'),  # здесь указывается директория для кэшируемых файлов
+               'OPTIONS': {'MAX_ENTRIES':1}}}
 
+CACHE_MIDDLEWARE_ALIAS = 'default'
+CACHE_MIDDLEWARE_SECONDS = 60  # здесь задается время жизни кэша
+CACHE_MIDDLEWARE_KEY_PREFIX = 'news_portal'  # необязательный параметр, который определяет разделение ключей для указанного приложения
 
 SOCIALACCOUNT_PROVIDERS = {'yandex':
                                {'APP':

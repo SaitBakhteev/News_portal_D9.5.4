@@ -8,7 +8,7 @@ from datetime import datetime
 import datetime as dt
 from django.conf import settings
 
-
+from pprint import pprint
 
 class Author(models.Model):
     user=models.OneToOneField(User, on_delete=models.CASCADE)
@@ -67,8 +67,11 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.content[:30:]}, {self.author.user.username} '
 
+
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs) # обращение к родителю вызывается для того, чтобы при изменении поста сам объект сохраниолся
+        super().save(*args, **kwargs)  # обращение к родителю вызывается для того, чтобы при изменении поста сам объект сохраниолся
+        cache.delete(f'post-{self.pk}')  # после сохранения поста удаляем кэш
+        pprint('change or create post')
 
     def set_date(self, y_): # функция изменения даты публикации в БД
                             # через shell сугубо для учеьных целей
