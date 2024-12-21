@@ -188,8 +188,9 @@ def create_post(request): # функция для создания и добав
     if request.method=='POST':
         form=PostCreateForm(request.POST)
         if form.is_valid():
-            post=form.save()
-            post_id, user_id = post.pk, request.user.id
+            form.save()
+            # post=form.save()
+            # post_id, user_id = post.pk, request.user.id
             return render(request, 'flatpages/messages.html', {'state':'Новая публикация добавлена успешно!'})
     return render(request, 'flatpages/edit.html', {'form':form, 'button':'Опубликовать'})
 
@@ -230,7 +231,7 @@ def edit_post(request, pk): # функция для редактирования
                                                          'create_time':post.create_time,
                                                          'title':form.cleaned_data['title'],
                                                          'content':form.cleaned_data['content']})
-                    # post.save()
+                    post.save()
                     cache.delete(f'post-pk')  # после сохранения поста удаляем кэш
                     state='Изменения успешно сохранены.'
             except TypeError:

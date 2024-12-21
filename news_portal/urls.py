@@ -7,7 +7,7 @@ from .views import (PostsList, PostDetail, PostFilterView, create_post, edit_pos
                     delete_post, MailView, test)
 
 urlpatterns = [
-        path('', cache_page(60)(PostsList.as_view()), name='main_page'),
+        path('', cache_page(0)(PostsList.as_view()), name='main_page'),
         path('edit_subscribe/', PostsList.as_view(), name='edit_subscribe'),
         path('<int:pk>/', cache_page(60*5)(PostDetail.as_view()), name='post_detail'),
         path('search/', PostFilterView.as_view(), name='search_post'),
