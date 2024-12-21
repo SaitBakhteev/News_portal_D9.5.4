@@ -4,7 +4,7 @@ djangoProject_News_Portal/__pycache__
 protect/__pycache__
 sign/__pycache__
 db.sqlite3_1.sqlite3
-#DB_django
+DB_django
 any_tests.py
 news_portal/__pycache__
 celerybeat-schedule.bak
@@ -13,3 +13,5 @@ celerybeat-schedule.dir
 for_tests.py
 cache_files/
 news_portal/templatetags/__pycache__/
+mydata.json
+news_portal/management/commands/__pycache__/cmdtest.cpython-312.pyc

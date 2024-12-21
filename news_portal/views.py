@@ -196,7 +196,7 @@ def create_post(request): # функция для создания и добав
 @login_required
 @permission_required('news_portal.change_post', raise_exception=True)
 def edit_post(request, pk): # функция для редактирования названия и содержания поста
-    post = Post.objects.get(pk=pk)
+    post = Post.objects.get(pk=512)
     if post.author.user==request.user: # если публикация принадлежит
         # текущему авторизованному пользователю
 
@@ -280,8 +280,12 @@ class MailView(View):
 # представление для тестирования разных задач
 @cache_page(4)
 def test(request):
-    a=cache.get(f'post-18', None)
-    return render(request,'test.html', context={'a': a})
+    posts = Post.objects.filter(pk__lt=10)
+
+    return render(request,'test.html',{'posts':posts, 'count': posts.count() })
+
+def ts(request):
+    return render(request,'test.html')
 
 # -! Неиспользуемые классы ниже
 class CommListView(ListView):  # класс для отобрпажения

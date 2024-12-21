@@ -116,8 +116,17 @@ WSGI_APPLICATION = 'djangoProject_News_Portal.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'DB_django',
+        #настройки при использовании postgres
+        'ENGINE': 'django.db.backends.postgresql', # при использовании postgres,
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
+        'USER': os.getenv('DB_USER'),
+        'NAME': os.getenv('DB_NAME'),
+        'PASSWORD': os.getenv('DB_PASSWORD')
+        #
+            # Настройки при использовании sqlite
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'DB_django',
     }
 }
 

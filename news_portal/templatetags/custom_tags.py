@@ -20,3 +20,7 @@ def url_replace(context, **kwargs):
 @register.simple_tag
 def pow(val, x):
     return val+10*x
+
+@register.simple_tag
+def dict(x: int, key: str) -> str:
+    return f'{key}: {x} on {datetime.now()}'

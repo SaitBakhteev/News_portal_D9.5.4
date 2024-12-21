@@ -1,10 +1,6 @@
-import pytest
-from for_tests import t, t1
-def y():
-    assert t(9)==True
+from for_tests import t
+from news_portal.views import render, ts
 
-def y1():
-    assert t(2)==0
 
-if __name__ == '__main__':
-    pytest.main()
+def test_func():
+    assert t(2)==[0,2]
