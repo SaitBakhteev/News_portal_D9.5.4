@@ -48,6 +48,9 @@ from redis import Redis
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
+#-------- ЛОГГИРОВАНИЕ --------
+import logging
+logger = logging.getLogger(__name__)
 #___________ КОНЕЦ ИМПОРТА КОМПОНЕНТОВ ______________#
 
 
@@ -277,16 +280,30 @@ class MailView(View):
         return redirect('news_mail')
 
 
-
 # представление для тестирования разных задач
-@cache_page(4)
+# @cache_page(4)
 def test(request):
-    posts = Post.objects.filter(pk__lt=10)
 
-    return render(request,'test.html',{'posts':posts, 'count': posts.count() })
+    try:
+        # a=1/0
+        logger.info('This test log')
+        return render(request,
+                      'test.html',
+                      {'posts':posts,
+                       'count': posts.count() })
+    except ZeroDivisionError:
+        logger.error('This test')
+
+
 
 def ts(request):
-    return render(request,'test.html')
+    pst=Post.objects.get(pk=1)
+    logger.info('Кутагыpst')
+
+    return render(request,
+                  '403.html',
+                  {'aa': pst.title})
+
 
 # -! Неиспользуемые классы ниже
 class CommListView(ListView):  # класс для отобрпажения

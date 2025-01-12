@@ -116,17 +116,17 @@ WSGI_APPLICATION = 'djangoProject_News_Portal.wsgi.application'
 
 DATABASES = {
     'default': {
-        #настройки при использовании postgres
-        'ENGINE': 'django.db.backends.postgresql', # при использовании postgres,
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-        'USER': os.getenv('DB_USER'),
-        'NAME': os.getenv('DB_NAME'),
-        'PASSWORD': os.getenv('DB_PASSWORD')
-        # #
+        # #настройки при использовании postgres
+        # 'ENGINE': 'django.db.backends.postgresql', # при использовании postgres,
+        # 'HOST': os.getenv('DB_HOST'),
+        # 'PORT': os.getenv('DB_PORT'),
+        # 'USER': os.getenv('DB_USER'),
+        # 'NAME': os.getenv('DB_NAME'),
+        # 'PASSWORD': os.getenv('DB_PASSWORD')
+        # # #
             # Настройки при использовании sqlite
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'DB_django',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'DB_django (2)',
     }
 }
 
@@ -214,14 +214,14 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 #------- КЭШ ------------
-CACHES = {'default':
-              {'BACKEND':'django.core.cache.backends.filebased.FileBasedCache',
-               'LOCATION': os.path.join(BASE_DIR, 'cache_files'),  # здесь указывается директория для кэшируемых файлов
-               'OPTIONS': {'MAX_ENTRIES':1}}}
-
-CACHE_MIDDLEWARE_ALIAS = 'default'
-CACHE_MIDDLEWARE_SECONDS = 60  # здесь задается время жизни кэша
-CACHE_MIDDLEWARE_KEY_PREFIX = 'news_portal'  # необязательный параметр, который определяет разделение ключей для указанного приложения
+# CACHES = {'default':
+#               {'BACKEND':'django.core.cache.backends.filebased.FileBasedCache',
+#                'LOCATION': os.path.join(BASE_DIR, 'cache_files'),  # здесь указывается директория для кэшируемых файлов
+#                'OPTIONS': {'MAX_ENTRIES':1}}}
+#
+# CACHE_MIDDLEWARE_ALIAS = 'default'
+# CACHE_MIDDLEWARE_SECONDS = 60  # здесь задается время жизни кэша
+# CACHE_MIDDLEWARE_KEY_PREFIX = 'news_portal'  # необязательный параметр, который определяет разделение ключей для указанного приложения
 
 SOCIALACCOUNT_PROVIDERS = {'yandex':
                                {'APP':
@@ -239,3 +239,47 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 
 # # если задача не выполняется за 25 секунд, то она автоматически снимается, можете поставить время побольше, но как правило, это сильно бьёт по производительности сервера
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+# ЛОГГИРОВАНИЕ
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'style' : '{',
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s %(message)s '
+        },
+        'verbose': {
+            'format': '{levelname} - {asctime} - {module} - {name} - {message}',
+            'style': '{'
+        }
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        }
+    }
+}
