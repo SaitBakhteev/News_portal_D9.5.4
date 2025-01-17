@@ -241,45 +241,135 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
 
 # ЛОГГИРОВАНИЕ
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format': '{levelname} - {asctime} - {module} - {name} - {message}',
+#             'style': '{',  # Укажите правильный стиль форматирования
+#         },
+#     },
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'verbose',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'INFO',
+#         },
+#         'news_portal': {  # Название вашего приложения
+#             'handlers': ['console'],
+#             'level': 'INFO',
+#             'propagate': False,
+#         },
+#     },
+# }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'style' : '{',
     'formatters': {
         'simple': {
-            'format': '%(levelname)s %(message)s '
+            'format': '1: standart_format: %(levelname)s - %(message)s'
         },
-        'verbose': {
-            'format': '{levelname} - {asctime} - {module} - {name} - {message}',
+        'news_portal_format': {
+            'format': '2: {asctime} - {levelname} - {message}',
             'style': '{'
-        }
+        },
+        'news_portal_warning_format': {
+            'format': '3: {asctime} - {levelname} - {message} - {pathname}',
+            'style': '{'
+        },
+        'news_portal_error_format': {
+            'format': '4: {asctime} - {levelname} - {message} - {pathname} - {exc_info}',
+            'style': '{'
+        },
+        'general_format': {
+            'format': '5: {asctime} - {levelname} - {module} - {message}',
+            'style': '{'
+        },
+
     },
     'filters': {
         'require_debug_true': {
             '()': 'django.utils.log.RequireDebugTrue',
         },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+
     },
     'handlers': {
         'console': {
             'level': 'INFO',
             'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'simple'
         },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'news_portal_handler': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'news_portal_format'
+        },
+        'news_portal_warning_handler': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'news_portal_warning_format'
+        },
+        'news_portal_error_handler': {
+            'level': 'ERROR',
+            'class': 'logging.StreamHandler',
+            'formatter': 'news_portal_error_format'
+        },
+        'general_handler': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'logs\general.log',
+            # 'filters': ['require_debug_false'],
+            'formatter': 'general_format'
+        },
+
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['console', 'news_portal_handler',
+                         'news_portal_warning_handler',
+                         'news_portal_error_handler',
+                         'general_handler'],
             'propagate': True,
         },
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': False,
-        }
+        },
     }
 }
+
+#
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#             'level': 'DEBUG',  # Увеличьте пока в debug.mwel
+#         },
+#     },
+#     'loggers': {
+#         '': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#         },
+#     },
+# }

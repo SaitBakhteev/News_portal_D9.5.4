@@ -50,7 +50,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 #-------- ЛОГГИРОВАНИЕ --------
 import logging
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
+logger = logging.getLogger('django')
 #___________ КОНЕЦ ИМПОРТА КОМПОНЕНТОВ ______________#
 
 
@@ -283,16 +284,17 @@ class MailView(View):
 # представление для тестирования разных задач
 # @cache_page(4)
 def test(request):
-
     try:
-        # a=1/0
-        logger.info('This test log')
-        return render(request,
-                      'test.html',
-                      {'posts':posts,
-                       'count': posts.count() })
-    except ZeroDivisionError:
-        logger.error('This test')
+        a=1/0
+        # logger.info('This test log')
+        # logger.warning('This warn log')
+        # logger.error('This err log', exc_info=True)
+        # logger.info('This test log') if a<3 else logger.warning('This warn')
+        # logger.warning('Warn test log') if a < 3 else logger.info('This info')
+        return render(request, 'test.html')
+    except ZeroDivisionError as e:
+        logger.error('Real error', exc_info=True)
+        return render(request, 'test.html')
 
 
 
