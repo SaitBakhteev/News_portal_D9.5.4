@@ -6,16 +6,15 @@
 6. Создайте .env файл в папке djangoProject_News_Portal
 
 <H4>Содержимое .env файла должно быть следующим:</H4><br>
-```pyton
-SECRET_KEY=<*Ваш секретный код django*><br><br>
 
->данные для почты<br>
-EMAIL_HOST_USER=<*Ваш хост почты*><br>
-DEFAULT_FROM_EMAIL=<*Ваш адрес подключенной для рассылки почты*><br>
-EMAIL_HOST_PASSWORD=<*специальный пароль Вашей почты для рассылки*><br><br>
+**SECRET_KEY**=<Ваш секретный код django><br><br>
+
+данные для почты<br>
+**EMAIL_HOST_USER**=<*Ваш хост почты*><br>
+**DEFAULT_FROM_EMAIL**=<*Ваш адрес подключенной для рассылки почты*><br>
+**EMAIL_HOST_PASSWORD**=<*специальный пароль Вашей почты для рассылки*><br><br>
 
 >данные для oauth yandex<br>
-YANDEX_CLIEND_ID=<*Ваш уникальный id, выданный **yandex***><br>
-YANDEX_SECRET=<*Ваш секретный пароль, выданный **yandex***>
-```
+**YANDEX_CLIEND_ID**=<*Ваш уникальный id, выданный **yandex***><br>
+**YANDEX_SECRET**=<*Ваш секретный пароль, выданный **yandex***>
 
