@@ -7,6 +7,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE',
 
 app = Celery('djangoProject_News_Portal')
 app.config_from_object('django.conf:settings', namespace='CELERY')
+app.conf.timezone = 'Europe/Moscow' # установка часового пояса
 app.autodiscover_tasks()
 app.conf.broker_connection_retry_on_startup = True
 

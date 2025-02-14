@@ -201,49 +201,56 @@ def create_post(request): # функция для создания и добав
 @login_required
 @permission_required('news_portal.change_post', raise_exception=True)
 def edit_post(request, pk): # функция для редактирования названия и содержания поста
-    post = Post.objects.get(pk=512)
-    if post.author.user==request.user: # если публикация принадлежит
-        # текущему авторизованному пользователю
-
-        # обладает ли пользователь правами автора публикаций
-        is_author= request.user.groups.filter(name='authors').exists()
-
-        form=PostForm(initial={'create_time':post.create_time,
-                               'author':post.author,
-                               'postType':post.postType,
-                               'title': post.title,
-                               'content': post.content,
-                               'category': Category.objects.filter(postcategory__post=post)
-                               })
-        form.fields['postType'].disabled = True
-        form.fields['author'].disabled = True
-        form.fields['category'].queryset = Category.objects.all()
-        form.fields['category'].disabled = True
-        form.fields['category'].required = False
-
-        if request.method=='POST':
-            form=PostForm(request.POST, post)
-            form.fields['postType'].required = False
-            form.fields['author'].required = False
-            form.fields['create_time'].required = False
+    try:
+        post = Post.objects.get(pk=pk)
+        if post.author.user==request.user: # если публикация принадлежит
+            # текущему авторизованному пользователю
+            logger.info('208')
+            # обладает ли пользователь правами автора публикаций
+            is_author= request.user.groups.filter(name='authors').exists()
+            logger.info('211')
+            form=PostForm(initial={'create_time':post.create_time,
+                                   'author':post.author,
+                                   'postType':post.postType,
+                                   'title': post.title,
+                                   'content': post.content,
+                                   'category': Category.objects.filter(postcategory__post=post)
+                                   })
+            logger.info('219')
+            form.fields['postType'].disabled = True
+            form.fields['author'].disabled = True
+            form.fields['category'].queryset = Category.objects.all()
+            form.fields['category'].disabled = True
             form.fields['category'].required = False
-            try:
-                state = None  # переменная для контекста отображающая сообщение для пользователя о результатах действий
-                if form.is_valid():
-                    post=Post.objects.filter(pk=pk).update(**{'author':post.author,
-                                                         'postType':post.postType,
-                                                         'create_time':post.create_time,
-                                                         'title':form.cleaned_data['title'],
-                                                         'content':form.cleaned_data['content']})
-                    post.save()
-                    cache.delete(f'post-pk')  # после сохранения поста удаляем кэш
-                    state='Изменения успешно сохранены.'
-            except TypeError:
-                state = 'Возникла ошибка! Возможно причина в превышении лимита названия поста, попавшего в БД не через форму'
-            return render(request, 'flatpages/messages.html', {'state':state})
-        return render(request, 'flatpages/edit.html', {'form':form, 'button':'Сохранить изменения', 'is_author':is_author})
-    return render(request,'403.html',{'not_your_publication':True})
-
+            logger.info('225')
+            if request.method=='POST':
+                form=PostForm(request.POST, post)
+                form.fields['postType'].required = False
+                form.fields['author'].required = False
+                form.fields['create_time'].required = False
+                form.fields['category'].required = False
+                logger.info('232')
+                try:
+                    state = None  # переменная для контекста отображающая сообщение для пользователя о результатах действий
+                    if form.is_valid():
+                        post=Post.objects.filter(pk=pk).update(**{'author':post.author,
+                                                             'postType':post.postType,
+                                                             'create_time':post.create_time,
+                                                             'title':form.cleaned_data['title'],
+                                                             'content':form.cleaned_data['content']})
+                        logger.info('241')
+                        # post.save()
+                        logger.info('243')
+                        # cache.delete(f'post-pk')  # после сохранения поста удаляем кэш
+                        state='Изменения успешно сохранены.'
+                        logger.info('246')
+                except TypeError:
+                    state = 'Возникла ошибка! Возможно причина в превышении лимита названия поста, попавшего в БД не через форму'
+                return render(request, 'flatpages/messages.html', {'state':state})
+            return render(request, 'flatpages/edit.html', {'form':form, 'button':'Сохранить изменения', 'is_author':is_author})
+        return render(request,'403.html',{'not_your_publication':True})
+    except Exception as e:
+        logger.error(f'main_ERROR = {e}')
 
 @login_required
 @permission_required('news_portal.delete_post', raise_exception=True)
@@ -284,14 +291,22 @@ class MailView(View):
 # представление для тестирования разных задач
 # @cache_page(4)
 def test(request):
+
     try:
-        a=1/0
-        # logger.info('This test log')
-        # logger.warning('This warn log')
-        # logger.error('This err log', exc_info=True)
-        # logger.info('This test log') if a<3 else logger.warning('This warn')
-        # logger.warning('Warn test log') if a < 3 else logger.info('This info')
-        return render(request, 'test.html')
+        posts = [(1,'ж'),(3,'ка')]
+        # posts = (Post.objects.filter(pk=5).prefetch_related('category').
+        #          values('title', 'category__category', 'category__subscribers__email'))
+        # kwg=dict()
+        # for post in posts:
+        #     email=post['category__subscribers__email']
+        #     if email not in kwg:
+        #         kwg[email]=set()
+        #     kwg[email].add(post['title'][:5])
+        text = ''
+        # for k, v in kwg.items():
+        #     text += f'{k}: {v};\n'
+        return render(request, 'test.html', {'posts':posts,
+                                             'kwg':text})
     except ZeroDivisionError as e:
         logger.error('Real error', exc_info=True)
         return render(request, 'test.html')

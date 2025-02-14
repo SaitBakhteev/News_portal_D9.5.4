@@ -18,8 +18,13 @@
 {#{% endfor %}#}
 {#</table><br>#}
 {#count = {{ count }}#}
-    asdasd+ываываыва
-{{ posts }}
+
+{% for i in posts %}
+    {{ i.1 }}<br>
+{% endfor %}
+<br><br>
+{{ kwg }}
+
 {#{% endblock %}#}
 </body>
 </html>

@@ -3,11 +3,14 @@
 import os
 import sys
 
+# import logging
+# logger = logging.getLogger(__name__)
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djangoProject_News_Portal.settings')
     try:
+        # logger.info('Starting administrative tasks')
         from django.core.management import execute_from_command_line
     except ImportError as exc:
         raise ImportError(
