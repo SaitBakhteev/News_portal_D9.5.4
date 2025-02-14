@@ -5,8 +5,9 @@
 5. Если в процессе установки библиотек вознкнет ошибка, то установите зависимости командой "python.exe -m pip install -r .\requirements"
 6. Создайте .env файл в папке djangoProject_News_Portal
 
-###Содержимое .env файла должно быть следующим:<br>
-`SECRET_KEY=<*Ваш секретный код django*><br><br>
+<H4>Содержимое .env файла должно быть следующим:</H4><br>
+```pyton
+SECRET_KEY=<*Ваш секретный код django*><br><br>
 
 >данные для почты<br>
 EMAIL_HOST_USER=<*Ваш хост почты*><br>
@@ -16,4 +17,5 @@ EMAIL_HOST_PASSWORD=<*специальный пароль Вашей почты 
 >данные для oauth yandex<br>
 YANDEX_CLIEND_ID=<*Ваш уникальный id, выданный **yandex***><br>
 YANDEX_SECRET=<*Ваш секретный пароль, выданный **yandex***>
+```
 
