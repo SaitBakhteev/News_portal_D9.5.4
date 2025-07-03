@@ -2,12 +2,13 @@ from random import randint as rint
 
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.core.cache import cache
 from django.contrib.auth.models import User
 from datetime import datetime
 import datetime as dt
 from django.conf import settings
 
-
+from pprint import pprint
 
 class Author(models.Model):
     user=models.OneToOneField(User, on_delete=models.CASCADE)
@@ -55,16 +56,22 @@ class Post(models.Model):
     article = 'AL'
     post_type = [(news, 'Новости'),  # список названий типа поста
                  (article, 'Статья')]
-    author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, verbose_name='Автор')
+    author = models.ForeignKey(Author, on_delete=models.SET_NULL, null=True, verbose_name='Автор', related_name='post')
     postType = models.CharField(choices=post_type, default=news, max_length=2, verbose_name='Тип публикации') # тип поста (новость/статья)
     create_time = models.DateTimeField(auto_now_add=datetime.now(tz=dt.timezone.utc))  # дата добавления поста
-    category=models.ManyToManyField(Category, through='PostCategory', verbose_name='Категория публикации')
+    category=models.ManyToManyField(Category, through='PostCategory', verbose_name='Категория публикации', related_name='post')
     title=models.CharField(max_length=50, verbose_name='Заголовок поста') #заголовок поста
     content=models.TextField(verbose_name='Содержание поста') # содержание поста
     raiting=models.IntegerField(default=0) # рейтинг поста
 
     def __str__(self):
         return f'{self.content[:30:]}, {self.author.user.username} '
+
+
+    # def save(self, *args, **kwargs):
+    #     super().save(*args, **kwargs)  # обращение к родителю вызывается для того, чтобы при изменении поста сам объект сохраниолся
+    #     # cache.delete(f'post-{self.pk}')  # после сохранения поста удаляем кэш
+    #     pprint('change or create post')
 
     def set_date(self, y_): # функция изменения даты публикации в БД
                             # через shell сугубо для учеьных целей

@@ -1,4 +1,6 @@
 #___________ НАЧАЛО ИМПОРТА КОМПОНЕНТОВ ______________
+from django.conf import settings
+import time
 from datetime import datetime
 import datetime as dt
 
@@ -32,10 +34,24 @@ from django.core.exceptions import ObjectDoesNotExist
 # импорты для удаления тестовых пользователей (для отработки при создании проекта)
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.models import EmailAddress
-from django.conf import settings
+
 
 from pprint import pprint
 from django.db import models
+from .tasks import test_sleep, hello_world, test_comments
+from django.http import HttpResponse, HttpResponseRedirect
+
+# ------- КЭШ -------------
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+from redis import Redis
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
+#-------- ЛОГГИРОВАНИЕ --------
+import logging
+# logger = logging.getLogger(__name__)
+logger = logging.getLogger('django')
 #___________ КОНЕЦ ИМПОРТА КОМПОНЕНТОВ ______________#
 
 
@@ -114,6 +130,7 @@ class PostDetail(LoginRequiredMixin,DetailView): # детальная инфор
     model = Post
     template_name = 'flatpages/post.html'
     context_object_name = 'post'
+    queryset = Post.objects.all()
 
     def get_context_data(self, **kwargs): # модернизация контекста для отображения комментариев
                                                 # на отдельной странице поста
@@ -137,6 +154,13 @@ class PostDetail(LoginRequiredMixin,DetailView): # детальная инфор
     # переменная передающая в контекст информациюЮ обладает ли пользователь правами авторо
         context['is_author']=self.request.user.groups.filter(name='authors').exists()
         return context
+
+    def get_object(self, queryset=None):
+        post=cache.get(f'post-{self.kwargs['pk']}', None)
+        if post is None:
+            post = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs['pk']}', post)
+        return post
 
 class PostFilterView(LoginRequiredMixin, ListView): # класс для отображения фильтра поста на отдельной HTML странице 'search.html'
     model = Post
@@ -169,53 +193,64 @@ def create_post(request): # функция для создания и добав
         form=PostCreateForm(request.POST)
         if form.is_valid():
             form.save()
+            # post=form.save()
+            # post_id, user_id = post.pk, request.user.id
             return render(request, 'flatpages/messages.html', {'state':'Новая публикация добавлена успешно!'})
     return render(request, 'flatpages/edit.html', {'form':form, 'button':'Опубликовать'})
 
 @login_required
 @permission_required('news_portal.change_post', raise_exception=True)
 def edit_post(request, pk): # функция для редактирования названия и содержания поста
-    post = Post.objects.get(pk=pk)
-    if post.author.user==request.user: # если публикация принадлежит
-        # текущему авторизованному пользователю
-
-        # обладает ли пользователь правами автора публикаций
-        is_author= request.user.groups.filter(name='authors').exists()
-
-        form=PostForm(initial={'create_time':post.create_time,
-                               'author':post.author,
-                               'postType':post.postType,
-                               'title': post.title,
-                               'content': post.content,
-                               'category': Category.objects.filter(postcategory__post=post)
-                               })
-        form.fields['postType'].disabled = True
-        form.fields['author'].disabled = True
-        form.fields['category'].queryset = Category.objects.all()
-        form.fields['category'].disabled = True
-        form.fields['category'].required = False
-
-        if request.method=='POST':
-            form=PostForm(request.POST, post)
-            form.fields['postType'].required = False
-            form.fields['author'].required = False
-            form.fields['create_time'].required = False
+    try:
+        post = Post.objects.get(pk=pk)
+        if post.author.user==request.user: # если публикация принадлежит
+            # текущему авторизованному пользователю
+            logger.info('208')
+            # обладает ли пользователь правами автора публикаций
+            is_author= request.user.groups.filter(name='authors').exists()
+            logger.info('211')
+            form=PostForm(initial={'create_time':post.create_time,
+                                   'author':post.author,
+                                   'postType':post.postType,
+                                   'title': post.title,
+                                   'content': post.content,
+                                   'category': Category.objects.filter(postcategory__post=post)
+                                   })
+            logger.info('219')
+            form.fields['postType'].disabled = True
+            form.fields['author'].disabled = True
+            form.fields['category'].queryset = Category.objects.all()
+            form.fields['category'].disabled = True
             form.fields['category'].required = False
-            try:
-                state = None  # переменная для контекста отображающая сообщение для пользователя о результатах действий
-                if form.is_valid():
-                    Post.objects.filter(pk=pk).update(**{'author':post.author,
-                                                         'postType':post.postType,
-                                                         'create_time':post.create_time,
-                                                         'title':form.cleaned_data['title'],
-                                                         'content':form.cleaned_data['content']})
-                    state='Изменения успешно сохранены.'
-            except TypeError:
-                state = 'Возникла ошибка! Возможно причина в превышении лимита названия поста, попавшего в БД не через форму'
-            return render(request, 'flatpages/messages.html', {'state':state})
-        return render(request, 'flatpages/edit.html', {'form':form, 'button':'Сохранить изменения', 'is_author':is_author})
-    return render(request,'403.html',{'not_your_publication':True})
-
+            logger.info('225')
+            if request.method=='POST':
+                form=PostForm(request.POST, post)
+                form.fields['postType'].required = False
+                form.fields['author'].required = False
+                form.fields['create_time'].required = False
+                form.fields['category'].required = False
+                logger.info('232')
+                try:
+                    state = None  # переменная для контекста отображающая сообщение для пользователя о результатах действий
+                    if form.is_valid():
+                        post=Post.objects.filter(pk=pk).update(**{'author':post.author,
+                                                             'postType':post.postType,
+                                                             'create_time':post.create_time,
+                                                             'title':form.cleaned_data['title'],
+                                                             'content':form.cleaned_data['content']})
+                        logger.info('241')
+                        # post.save()
+                        logger.info('243')
+                        # cache.delete(f'post-pk')  # после сохранения поста удаляем кэш
+                        state='Изменения успешно сохранены.'
+                        logger.info('246')
+                except TypeError:
+                    state = 'Возникла ошибка! Возможно причина в превышении лимита названия поста, попавшего в БД не через форму'
+                return render(request, 'flatpages/messages.html', {'state':state})
+            return render(request, 'flatpages/edit.html', {'form':form, 'button':'Сохранить изменения', 'is_author':is_author})
+        return render(request,'403.html',{'not_your_publication':True})
+    except Exception as e:
+        logger.error(f'main_ERROR = {e}')
 
 @login_required
 @permission_required('news_portal.delete_post', raise_exception=True)
@@ -253,13 +288,39 @@ class MailView(View):
         return redirect('news_mail')
 
 
-
 # представление для тестирования разных задач
+# @cache_page(4)
 def test(request):
-    delta=datetime.now(dt.timezone.utc)-dt.timedelta(days=1)
-    posts=Post.objects.filter(create_time__gte=delta).count()
-    return render(request,'test.html',
-                              {'test':posts})
+
+    try:
+        posts = [(1,'ж'),(3,'ка')]
+        # posts = (Post.objects.filter(pk=5).prefetch_related('category').
+        #          values('title', 'category__category', 'category__subscribers__email'))
+        # kwg=dict()
+        # for post in posts:
+        #     email=post['category__subscribers__email']
+        #     if email not in kwg:
+        #         kwg[email]=set()
+        #     kwg[email].add(post['title'][:5])
+        text = ''
+        # for k, v in kwg.items():
+        #     text += f'{k}: {v};\n'
+        return render(request, 'test.html', {'posts':posts,
+                                             'kwg':text})
+    except ZeroDivisionError as e:
+        logger.error('Real error', exc_info=True)
+        return render(request, 'test.html')
+
+
+
+def ts(request):
+    pst=Post.objects.get(pk=1)
+    logger.info('Кутагыpst')
+
+    return render(request,
+                  '403.html',
+                  {'aa': pst.title})
+
 
 # -! Неиспользуемые классы ниже
 class CommListView(ListView):  # класс для отобрпажения
