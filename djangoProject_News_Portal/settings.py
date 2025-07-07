@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
@@ -171,7 +171,12 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# STATIC_ROOT = BASE_DIR / 'staticfiles'  # Для collectstatic
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Для принудительной обновляемости статики
+# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -189,6 +194,7 @@ EMAIL_BACKEND='django.core.mail.backends.console.EmailBackend'  # установ
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
+# ACCOUNT_LOGIN_REDIRECT_URL = '/'
 # MANAGERS = ('test@example.ru,stepler@laxap.ru')
 
 # добавки по авторизации

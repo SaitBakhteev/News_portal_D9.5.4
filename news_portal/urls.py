@@ -9,7 +9,7 @@ from .views import (PostsList, PostDetail, PostFilterView, create_post, edit_pos
 urlpatterns = [
         path('', cache_page(0)(PostsList.as_view()), name='main_page'),
         path('edit_subscribe/', PostsList.as_view(), name='edit_subscribe'),
-        path('<int:pk>/', cache_page(60*5)(PostDetail.as_view()), name='post_detail'),
+        path('<int:pk>/', PostDetail.as_view(), name='post_detail'),
         path('search/', PostFilterView.as_view(), name='search_post'),
         path('create/', create_post, name='create_post'),
         path('<int:pk>/edit/', edit_post, name='edit_post'),

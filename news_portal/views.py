@@ -51,7 +51,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 #-------- ЛОГГИРОВАНИЕ --------
 import logging
 # logger = logging.getLogger(__name__)
-logger = logging.getLogger('django')
+logger = logging.getLogger('django.server')
 #___________ КОНЕЦ ИМПОРТА КОМПОНЕНТОВ ______________#
 
 
@@ -293,20 +293,8 @@ class MailView(View):
 def test(request):
 
     try:
-        posts = [(1,'ж'),(3,'ка')]
-        # posts = (Post.objects.filter(pk=5).prefetch_related('category').
-        #          values('title', 'category__category', 'category__subscribers__email'))
-        # kwg=dict()
-        # for post in posts:
-        #     email=post['category__subscribers__email']
-        #     if email not in kwg:
-        #         kwg[email]=set()
-        #     kwg[email].add(post['title'][:5])
-        text = ''
-        # for k, v in kwg.items():
-        #     text += f'{k}: {v};\n'
-        return render(request, 'test.html', {'posts':posts,
-                                             'kwg':text})
+        a = 1/0
+        return render(request, 'test.html', {'posts':'posts'})
     except ZeroDivisionError as e:
         logger.error('Real error', exc_info=True)
         return render(request, 'test.html')
